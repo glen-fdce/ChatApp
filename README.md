@@ -78,7 +78,7 @@ An AI Search index should be set up with the following schema:-
 * In `./Frontend`, add a `.env.development` file containing the following
 
 ```
-APP_NAME=ChatApp
+APP_NAME=DocChat
 VITE_API_BASE_URL=http://127.0.0.1:3000
 ```
 
