@@ -2,12 +2,25 @@ import { useEffect, useRef, useState } from "react"
 import { AppButton } from "../shared/app-button/AppButton"
 import axios from 'axios';
 import "./UploadAndChat.css"
+import {
+  Dialog,
+  DialogSurface,
+  DialogTitle,
+  DialogContent,
+  DialogBody,
+  DialogActions,
+} from "@fluentui/react-components";
 
 enum UploadStatus {
   NotUploaded,
   Uploading,
   ErrorUploading,
   Uploaded
+}
+
+interface Answer {
+  question: string;
+  answer: string;
 }
 
 const apiBaseUrl: string = import.meta.env.VITE_API_BASE_URL;
@@ -18,7 +31,8 @@ export const UploadAndChat = () => {
   const [filename, setFilename] = useState<string>("");
   const [sessionId, setSessionId] = useState<string>("");
   const [question, setQuesion ] = useState<string>("");
-  const [answer, setAnswer ] = useState<string>("");
+  const [answers, setAnswers ] = useState<Answer[]>([]);
+  const [fetchingAnswers, setFetchingAnswers] = useState<boolean>(false);
 
 
   useEffect(() => {
@@ -26,37 +40,42 @@ export const UploadAndChat = () => {
     setFilename(localStorage.getItem("FileName") || "");
     if(localStorage.getItem("SessionID")) {
       setCurrentStatus(UploadStatus.Uploaded);
-    } else {
-      setCurrentStatus(UploadStatus.NotUploaded);
-    }
+    } 
   }, [sessionId, filename, currentStatus]);
 
-  const hiddenFileInput = useRef(null);
 
+  const [resetDialogOpen, setResetDialogOpen] = useState<boolean>(false);
+
+  const hiddenFileInput = useRef(null);
 
   const handleReset = () => {
     localStorage.clear();
     setSessionId("");
     setFilename("");
+    setAnswers([]);
     setCurrentStatus(UploadStatus.NotUploaded);
   }
 
   const handleChat = async () => {
     try {
+      setFetchingAnswers(true);
       const result = await axios.post(apiBaseUrl + '/chat',
         {
           sessionId: sessionId,
-          question: question
+          question: question,
+          history: answers
         });
+      setFetchingAnswers(false);
+      setQuesion("");
 
       if (result.data.answer) {
-        setAnswer(result.data.answer);
+        setAnswers([{ question, answer: result.data.answer }, ...answers]);
       } else {
-        setAnswer("Error getting answer");
+        setAnswers([{ question, answer: "Error whilst getting an answer"}, ...answers,]);
       }
 
     } catch (error) {
-      setAnswer("Error getting answer");
+        setAnswers([{ question, answer: "Error whilst getting an answer" }, ...answers]);
     }
   };
   
@@ -67,6 +86,8 @@ export const UploadAndChat = () => {
   }
 
   const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+
+    setCurrentStatus(UploadStatus.NotUploaded);
 
     if (event.target.files) {
       setCurrentStatus(UploadStatus.Uploading);
@@ -112,12 +133,12 @@ export const UploadAndChat = () => {
                 <div className="file-upload-box">
                   <div className="file-upload-instructions">
                     <h1>No file uploaded</h1>
-                    <p>Upload a .pdf, .docx or .txt file to begin your chat session.</p>
+                    <p>Upload a PDF file to begin your chat session.</p>
                   </div>
-                  <AppButton title="Upload File" action={ handleClick } />
+                  <AppButton title="Upload PDF" action={ handleClick } />
                   <input
                     type="file"
-                    // accept=".pdf, .docx, .txt"
+                    accept=".pdf"
                     onChange={handleChange}
                     ref={hiddenFileInput}
                     style={{display: 'none'}}
@@ -128,8 +149,8 @@ export const UploadAndChat = () => {
               { currentStatus === UploadStatus.Uploading && (
                 <div className="file-upload-box">
                   <div className="file-upload-instructions">
-                    <h1>Uploading...</h1>
-                    <p>Your file is being uploaded</p>
+                    <h1>⌛️ Uploading...</h1>
+                    <p>Your file is being uploaded. This normally takes a couple of minutes.</p>
                   </div>
                 </div>
               )}
@@ -137,44 +158,68 @@ export const UploadAndChat = () => {
               { currentStatus === UploadStatus.ErrorUploading && (
                 <div>
                   <div className="file-upload-instructions">
-                    <h1>Error Uploading</h1>
-                    <p>Was your file a support type?</p>
-                    <ul>
-                      <li>.docx</li>
-                      <li>.pdf</li>
-                      <li>.txt</li>
-                    </ul>
+                    <h1>😭 Error Uploading</h1>
+                    <p>Was your file a supported PDF file?</p>
                     <AppButton title="Try again" action={ handleReset } />
                   </div>
                 </div>
               )}
-
-        
         </div>
     )}
 
     { currentStatus === UploadStatus.Uploaded && (
       <>
         <div className="file-uploaded">
-          <p><b>File Uploaded: </b> {filename}</p>
-          <AppButton title="Reset" action={ handleReset } />
-        
-        <p>Ask a question below.</p>
 
-    
-        <textarea placeholder="What is this document about?" style={{ width: '50%' }} onChange={(event) => { setQuesion(event.currentTarget.value)}}>{ question }</textarea>
+          <span>File uploaded 😃 Now ask a question about <i>{filename}</i>. Follow-up questions are supported.</span>
+          <label htmlFor="questionField">Question:-</label>
+          <textarea
+            id="questionField"
+            placeholder="eg. What is this document about?"
+            disabled={fetchingAnswers}
+            value={question}
+            onChange={(event) => { setQuesion(event.currentTarget.value)}} />
 
-        <AppButton title="Ask" action={ handleChat } />
+          <div className="btn-group">
+            <AppButton title="Reset" action={ () => { setResetDialogOpen(true) } } classes="reset" disabled={ fetchingAnswers} />
+            <AppButton title="Ask" action={ handleChat } classes="darkgreen" disabled={ fetchingAnswers } />
+          </div>
 
-        <p>{ answer }</p>
+          { fetchingAnswers && (
+            <div className="fetching-answers">
+              <h2>One moment. Fetching answers...</h2>
+            </div>
+          )}
+
+          { answers.map((answer, index) => {
+            return (
+              <div key={index} className="answer">
+                <p><b>Q. { answer.question }</b></p>
+                <p>A. { answer.answer }</p>
+              </div>
+            )
+          })}
 
         </div>
       </> 
     )}
 
-    </>
 
+    <Dialog modalType="modal" open={resetDialogOpen}>
+          <DialogSurface>
+            <DialogBody>
+              <DialogTitle>Are you done with this file?</DialogTitle>
+              <DialogContent style={{ marginBottom: '20px' }}>
+                Resetting will clear the current file and all chat history. Are you sure you want to reset?
+              </DialogContent>
+              <DialogActions>
+                <AppButton title="Cancel" action={ () => setResetDialogOpen(false) } classes="maroon" />
+                <AppButton title="Yes, reset!" action={ () => { setResetDialogOpen(false); handleReset() }} />
+              </DialogActions>
+            </DialogBody>
+          </DialogSurface>
+    </Dialog>
+  </>
   )
-
 }
 

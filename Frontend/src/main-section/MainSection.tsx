@@ -7,7 +7,7 @@ export const MainSection = () => {
     <>
 
      <div className="intro">
-        <b>Welcome to DocChat</b>
+        <b>Welcome to DocChat</b> - Ask a question about an English language document in any language.
      </div>
 
      <UploadAndChat />

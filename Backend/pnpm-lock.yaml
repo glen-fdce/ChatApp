@@ -11,6 +11,9 @@ dependencies:
   '@azure/search-documents':
     specifier: ^12.0.0
     version: 12.0.0
+  '@dqbd/tiktoken':
+    specifier: ^1.0.13
+    version: 1.0.13
   body-parser:
     specifier: ^1.20.2
     version: 1.20.2
@@ -239,6 +242,10 @@ packages:
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
     dev: true
+
+  /@dqbd/tiktoken@1.0.13:
+    resolution: {integrity: sha512-941kjlHjfI97l6NuH/AwuXV4mHuVnRooDcHNSlzi98hz+4ug3wT4gJcWjSwSZHqeGAEn90lC9sFD+8a9d5Jvxg==}
+    dev: false
 
   /@jridgewell/resolve-uri@3.1.1:
     resolution: {integrity: sha512-dSYZh7HhCDtCKm4QakX0xFpsRDqjjtZf/kjI/v3T3Nwt5r8/qz/M19F9ySyOqU94SXBmeG9ttTul+YnR4LOxFA==}

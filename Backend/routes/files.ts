@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import pdfParse from 'pdf-parse';
 import { v4 as uuidv4 } from 'uuid';
-import { SearchIndexClient, SearchClient, AzureKeyCredential, odata } from '@azure/search-documents';
+import { SearchClient, AzureKeyCredential } from '@azure/search-documents';
 import { OpenAIClient } from '@azure/openai';
 
 export const filesRoute  = Router();
@@ -27,10 +27,8 @@ filesRoute.post("/upload", async(req: Request, res: Response, next: NextFunction
         const pdfBuffer = (req.files as Express.Multer.File[])[0].buffer;
         const pp = await pdfParse(pdfBuffer);
         const text = pp.text;
-        const words = text.split(/\s+/);
         const softChunkLimitChars = 1000;
         const hardChunkLimitChars = 1050;
-        const chunks = [];
 
         const sentences = text.match(/[^\.!\?]+[\.!\?]+/g) || [];
         let chunkedTexts = [];
