@@ -58,7 +58,7 @@ chatRoute.post("/", async(req: Request, res: Response, next: NextFunction) => {
     const questionEnglish = (await aiClient.getChatCompletions(azureOpenAiChatModel, translateConversation)).choices[0].message?.content || "";
     const embedding =  await aiClient.getEmbeddings(azureOpenAiModelEmbeddings, [questionEnglish]);
     const searchClient = new SearchClient<ChatDocument>(searchEndpoint, searchIndexName, new AzureKeyCredential(searchApiKey));
-    const searchResults = await searchClient.search(question, {
+    const searchResults = await searchClient.search(questionEnglish, {
         top: 20,
         filter: "SessionId eq '" + sessionId + "'",
         select: ["ChunkId", "Text"],

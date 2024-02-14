@@ -61,7 +61,7 @@ An AI Search index should be set up with the following schema:-
 
 ## To compile
 
-* In `./Backend`, add a `.nodemon` file containing the following
+* In `./Backend`, add a `nodemon.json` file containing the following
 
 ```
 {
