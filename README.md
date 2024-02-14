@@ -90,4 +90,4 @@ VITE_API_BASE_URL=http://127.0.0.1:3000
 ## Thoughts for improvement
 
 * The app contains no authentication mechanism, this should be changed if being moved into production
-* The app does not retain chat sessions between browser refreshes, this should be changed by storing chat conversation in a database
+* The app does not retain chat sessions between browser refreshes, this should be changed by storing chat conversation in a database (or by using a browser with IndexedDB)
