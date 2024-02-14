@@ -1,4 +1,4 @@
-# DocChat
+# DocChat (formally ChatApp)
 
 ![](Demo1.png)
 
