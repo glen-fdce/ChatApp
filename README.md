@@ -19,6 +19,8 @@ A user can upload a PDF file (in English) and then ask a questions about the doc
 
 ## AI Search index
 
+An Azure AI Index is required. Free tier is fine for testing.
+
 An AI Search index should be set up with the following schema:-
 
 ```
